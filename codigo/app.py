@@ -1,5 +1,4 @@
 # os imports traz ferramentas prontas
-
 import json # serve pra salvar os alunos num arquivo e não perder quando fechar
 import math # serve pra ver se o número é válido
 import os # os para limpar a tela
