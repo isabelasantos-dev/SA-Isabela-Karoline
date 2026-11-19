@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Escolar — Gestão de Alunos</title>
+
+    <!-- Fonte moderna Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 
+      CONEXÃO COM CSS EXTERNO:
+      Para usar um arquivo style.css separado, descomente a linha abaixo 
+      e mova o conteúdo da tag <style> para o seu arquivo style.css.
+    -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <!-- Tailwind CSS para layout responsivo e utilitários rápidos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Estilos Semânticos Organizados (Prontos para extração para style.css) -->
+    <style>
+        /* ==========================================================================
+           VARIÁVEIS DE TEMA E RESET (Fácil personalização no style.css)
+           ========================================================================== */
+        :root {
+            --cor-primaria: #2563eb;
+            --cor-primaria-hover: #1d4ed8;
+            --cor-secundaria: #475569;
+            --cor-sucesso: #16a34a;
+            --cor-sucesso-bg: #dcfce7;
+            --cor-alerta: #d97706;
+            --cor-alerta-bg: #fef3c7;
+            --cor-perigo: #dc2626;
+            --cor-perigo-bg: #fee2e2;
+            --cor-neutro-bg: #f8fafc;
+            --cor-card-bg: #ffffff;
+            --cor-borda: #e2e8f0;
+            --cor-texto-principal: #0f172a;
+            --cor-texto-secundario: #64748b;
+            --raio-borda: 12px;
+            --sombra-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cor-neutro-bg);
+            color: var(--cor-texto-principal);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==========================================================================
+           ESTRUTURA E COMPONENTES SEMÂNTICOS
+           ========================================================================== */
+        .app-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .card-painel {
+            background-color: var(--cor-card-bg);
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-aba {
+            border-radius: 10px;
+            font-weight: 500;
+            color: var(--cor-texto-secundario);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-aba:hover {
+            background-color: #eff6ff;
+            color: var(--cor-primaria);
+        }
+
+        .nav-aba.ativa {
+            background-color: var(--cor-primaria);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Inputs e Formulários */
+        .campo-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--cor-texto-principal);
+            margin-bottom: 0.375rem;
+        }
+
+        .campo-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--cor-borda);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: #ffffff;
+            color: var(--cor-texto-principal);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .campo-input:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Botões Semânticos */
+        .btn-primario {
+            background-color: var(--cor-primaria);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+            cursor: pointer;
+        }
+
+        .btn-primario:hover {
+            background-color: var(--cor-primaria-hover);
+        }
+
+        .btn-primario:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secundario {
+            background-color: #f1f5f9;
+            color: var(--cor-texto-principal);
+            border: 1px solid var(--cor-borda);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secundario:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-perigo {
+            background-color: var(--cor-perigo);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-perigo:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Badges de Situação Escolar */
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-aprovado {
+            background-color: var(--cor-sucesso-bg);
+            color: var(--cor-sucesso);
+        }
+
+        .badge-abaixo {
+            background-color: var(--cor-perigo-bg);
+            color: var(--cor-perigo);
+        }
+
+        .badge-sem-notas {
+            background-color: #f1f5f9;
+            color: var(--cor-secundaria);
+        }
+
+        /* Animação suave para notificações (Toasts) */
+        @keyframes deslizarEntrada {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notificacao-toast {
+            animation: deslizarEntrada 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- CABEÇALHO DO SISTEMA -->
+    <header class="app-header py-5 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/15 p-2.5 rounded-xl backdrop-blur-sm">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Sistema Escolar</h1>
+                    <p class="text-xs sm:text-sm text-blue-100">Controle de Alunos, Notas e Frequência </p>
+                </div>
+            </div>
+
+            
+    </header>
+
+    <!-- ÁREA DE FEEDBACK / NOTIFICAÇÕES -->
+    <div id="container-notificacoes" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full px-4 sm:px-0 pointer-events-none"></div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-6">
+
+        <!-- MENU DE NAVEGAÇÃO (Equivalente ao menu() do Python) -->
+        <nav aria-label="Menu principal" class="card-painel p-2 mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            <button type="button" data-aba="consultar" onclick="alternarAba('consultar')" class="nav-aba ativa py-2.5 px-3 text-sm flex items-center justify-center gap-2">
+                <span>📋</span> Consultar Alunos
+            </button>
+            <button type="button" data-aba="cadastrar" onclick="alternarAba('cadastrar')" class="nav-aba py-2.5 px-3 text-sm flex items-center justify-center gap-2">
+                <span>👤</span> Cadastrar Aluno
+            </button>
+            <button type="button" data-aba="notas" onclick="alternarAba('notas')" class="nav-aba py-2.5 px-3 text-sm flex items-center justify-center gap-2">
+                <span>📝</span> Adicionar Nota
+            </button>
+            <button type="button" data-aba="frequencia" onclick="alternarAba('frequencia')" class="nav-aba py-2.5 px-3 text-sm flex items-center justify-center gap-2">
+                <span>📅</span> Frequência
+            </button>
+            <button type="button" data-aba="gerenciar" onclick="alternarAba('gerenciar')" class="nav-aba py-2.5 px-3 text-sm flex items-center justify-center gap-2 col-span-2 sm:col-span-1">
+                <span>⚙️</span> Editar / Remover
+            </button>
+        </nav>
+
+        <!-- ==================================================================
+             SEÇÃO 1: CONSULTAR ALUNOS (Opção 4 do Python)
+             ================================================================== -->
+        <section id="secao-consultar" class="secao-conteudo space-y-6">
+            <!-- Resumo Estatístico Rápido -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="card-painel p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total de Alunos</p>
+                        <p id="stat-total-alunos" class="text-2xl font-bold text-slate-800 mt-1">0</p>
+                    </div>
+                    <span class="text-2xl bg-blue-50 p-3 rounded-xl">🎓</span>
+                </div>
+                <div class="card-painel p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Aprovados (Média ≥ 6,0)</p>
+                        <p id="stat-aprovados" class="text-2xl font-bold text-green-600 mt-1">0</p>
+                    </div>
+                    <span class="text-2xl bg-green-50 p-3 rounded-xl">✅</span>
+                </div>
+                <div class="card-painel p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Turmas Ativas</p>
+                        <p id="stat-turmas" class="text-2xl font-bold text-indigo-600 mt-1">0</p>
+                    </div>
+                    <span class="text-2xl bg-indigo-50 p-3 rounded-xl">🏫</span>
+                </div>
+            </div>
+
+            <!-- Barra de Filtro por Turma ou Busca -->
+            <div class="card-painel p-5">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div class="flex-1">
+                        <label for="filtro-turma" class="campo-label">Filtrar por Turma</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="filtro-turma" placeholder="Digite o nome da turma (ex.: 8º Ano A) ou deixe vazio para listar todos..." class="campo-input" oninput="renderizarListaAlunos()">
+                            <button type="button" onclick="limparFiltroConsulta()" class="btn-secundario whitespace-nowrap">Listar Todos</button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500">
+                        Ordenado automaticamente por <strong>Turma</strong> e <strong>Nome</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Cards dos Alunos -->
+            <div id="lista-alunos-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Preenchido dinamicamente via JavaScript -->
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SEÇÃO 2: CADASTRAR ALUNO (Opção 1 do Python)
+             ================================================================== -->
+        <section id="secao-cadastrar" class="secao-conteudo hidden">
+            <div class="card-painel p-6 max-w-2xl mx-auto">
+                <div class="border-b border-slate-200 pb-4 mb-5">
+                    <h2 class="text-lg font-bold text-slate-800">Cadastrar Novo Aluno</h2>
+                    <p class="text-sm text-slate-500">Preencha os dados obrigatórios. Não são permitidos nomes duplicados na mesma turma.</p>
+                </div>
+
+                <form id="form-cadastrar-aluno" onsubmit="handleCadastrarAluno(event)" class="space-y-4">
+                    <div>
+                        <label for="cad-nome" class="campo-label">Nome completo do aluno *</label>
+                        <input type="text" id="cad-nome" maxlength="100" required placeholder="Ex.: Maria Clara Silva" class="campo-input">
+                        <p class="text-xs text-slate-400 mt-1">Máximo de 100 caracteres. Deve conter pelo menos uma letra.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="cad-idade" class="campo-label">Idade (6 a 17 anos) *</label>
+                            <input type="number" id="cad-idade" min="6" max="17" step="1" required placeholder="Ex.: 14" class="campo-input">
+                        </div>
+
+                        <div>
+                            <label for="cad-turma" class="campo-label">Turma *</label>
+                            <input type="text" id="cad-turma" maxlength="50" required placeholder="Ex.: 9º Ano B" class="campo-input">
+                        </div>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-end gap-3">
+                        <button type="reset" class="btn-secundario">Limpar Campos</button>
+                        <button type="submit" class="btn-primario">Salvar Cadastro</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SEÇÃO 3: ADICIONAR NOTA E VER MÉDIA (Opção 2 do Python)
+             ================================================================== -->
+        <section id="secao-notas" class="secao-conteudo hidden">
+            <div class="card-painel p-6 max-w-2xl mx-auto">
+                <div class="border-b border-slate-200 pb-4 mb-5">
+                    <h2 class="text-lg font-bold text-slate-800">Adicionar Nota e Ver Média</h2>
+                    <p class="text-sm text-slate-500">Selecione o aluno, informe a avaliação e lance uma nota entre 0 e 10.</p>
+                </div>
+
+                <form id="form-adicionar-nota" onsubmit="handleAdicionarNota(event)" class="space-y-4">
+                    <div>
+                        <label for="nota-aluno-select" class="campo-label">Selecione o Aluno (Nome — Turma) *</label>
+                        <select id="nota-aluno-select" required class="campo-input" onchange="atualizarPreviaMediaNota()">
+                            <option value="">-- Escolha um aluno --</option>
+                        </select>
+                    </div>
+
+                    <!-- Painel de prévia da média atual do aluno selecionado -->
+                    <div id="previa-media-box" class="hidden bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="text-slate-500">Média atual:</span>
+                            <strong id="previa-media-valor" class="text-slate-800 ml-1">--</strong>
+                        </div>
+                        <span id="previa-media-status" class="badge-status badge-sem-notas">Sem notas</span>
+                    </div>
+
+                    <div>
+                        <label for="nota-descricao" class="campo-label">Disciplina / Avaliação *</label>
+                        <input type="text" id="nota-descricao" maxlength="80" required placeholder="Ex.: Matemática - Prova 1" class="campo-input">
+                    </div>
+
+                    <div>
+                        <label for="nota-valor" class="campo-label">Nota (0 a 10) *</label>
+                        <input type="text" id="nota-valor" inputmode="decimal" required placeholder="Ex.: 7,5 ou 8.0" class="campo-input">
+                        <p class="text-xs text-slate-400 mt-1">Aceita vírgula ou ponto decimal.</p>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-end">
+                        <button type="submit" class="btn-primario">Registrar Nota</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SEÇÃO 4: REGISTRAR PRESENÇA / FALTA (Opção 3 do Python)
+             ================================================================== -->
+        <section id="secao-frequencia" class="secao-conteudo hidden">
+            <div class="card-painel p-6 max-w-2xl mx-auto">
+                <div class="border-b border-slate-200 pb-4 mb-5">
+                    <h2 class="text-lg font-bold text-slate-800">Registrar Presença ou Falta</h2>
+                    <p class="text-sm text-slate-500">Não é permitido registrar duas chamadas na mesma data para o mesmo aluno.</p>
+                </div>
+
+                <form id="form-registrar-frequencia" onsubmit="handleRegistrarFrequencia(event)" class="space-y-4">
+                    <div>
+                        <label for="freq-aluno-select" class="campo-label">Selecione o Aluno (Nome — Turma) *</label>
+                        <select id="freq-aluno-select" required class="campo-input" onchange="atualizarPreviaFrequencia()">
+                            <option value="">-- Escolha um aluno --</option>
+                        </select>
+                    </div>
+
+                    <!-- Resumo de frequência do aluno selecionado -->
+                    <div id="previa-freq-box" class="hidden bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm">
+                        <span class="text-slate-600">Frequência acumulada: </span>
+                        <strong id="previa-freq-texto" class="text-slate-800">--</strong>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="freq-data" class="campo-label">Data da Aula (AAAA-MM-DD) *</label>
+                            <input type="date" id="freq-data" required class="campo-input">
+                        </div>
+
+                        <div>
+                            <label class="campo-label">Situação na Chamada *</label>
+                            <div class="grid grid-cols-2 gap-2 pt-0.5">
+                                <label class="flex items-center justify-center gap-2 border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:bg-green-50 has-[:checked]:bg-green-50 has-[:checked]:border-green-500 has-[:checked]:text-green-700 font-medium text-sm transition">
+                                    <input type="radio" name="freq-situacao" value="P" checked class="accent-green-600">
+                                    <span>P — Presente</span>
+                                </label>
+                                <label class="flex items-center justify-center gap-2 border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:bg-red-50 has-[:checked]:bg-red-50 has-[:checked]:border-red-500 has-[:checked]:text-red-700 font-medium text-sm transition">
+                                    <input type="radio" name="freq-situacao" value="F" class="accent-red-600">
+                                    <span>F — Falta</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-end">
+                        <button type="submit" class="btn-primario">Salvar Chamada</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             SEÇÃO 5: EDITAR / REMOVER NOTA E REMOVER ALUNO (Opções 5 e 6)
+             ================================================================== -->
+        <section id="secao-gerenciar" class="secao-conteudo hidden space-y-6">
+            <div class="card-painel p-6 max-w-3xl mx-auto">
+                <div class="border-b border-slate-200 pb-4 mb-5">
+                    <h2 class="text-lg font-bold text-slate-800">Editar / Remover Notas e Gerenciar Aluno</h2>
+                    <p class="text-sm text-slate-500">Selecione um aluno para corrigir notas lançadas ou removê-lo do sistema.</p>
+                </div>
+
+                <div class="mb-6">
+                    <label for="ger-aluno-select" class="campo-label">Selecione o Aluno</label>
+                    <select id="ger-aluno-select" class="campo-input" onchange="renderizarPainelGerenciamento()">
+                        <option value="">-- Escolha um aluno para gerenciar --</option>
+                    </select>
+                </div>
+
+                <!-- Área dinâmica do aluno selecionado -->
+                <div id="painel-gerenciamento-detalhes" class="hidden space-y-6">
+                    <!-- Lista de Notas para Edição/Exclusão -->
+                    <div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">Notas Lançadas</h3>
+                        <div id="ger-lista-notas" class="space-y-2.5">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Zona de Perigo: Remover Aluno (Opção 6 do Python) -->
+                    <div class="border-t border-slate-200 pt-5">
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-red-800">Remover Aluno do Sistema</h4>
+                                <p class="text-xs text-red-600 mt-0.5">Esta ação apaga permanentemente o cadastro, notas e histórico de frequência deste aluno.</p>
+                            </div>
+                            <button type="button" onclick="abrirModalConfirmacaoRemoverAluno()" class="btn-perigo whitespace-nowrap text-sm">
+                                Remover Aluno
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE CONFIRMAÇÃO PERSONALIZADO (Substitui confirm() nativo) -->
+    <div id="modal-confirmacao" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+            <h3 id="modal-titulo" class="text-lg font-bold text-slate-800">Confirmar Ação</h3>
+            <p id="modal-mensagem" class="text-sm text-slate-600 mt-2">Tem certeza que deseja continuar?</p>
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" onclick="fecharModalConfirmacao()" class="btn-secundario text-sm">Cancelar</button>
+                <button type="button" id="modal-btn-confirmar" class="btn-perigo text-sm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO DE NOTA (Substitui prompt() nativo) -->
+    <div id="modal-editar-nota" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800">Corrigir Valor da Nota</h3>
+            <p id="modal-nota-descricao" class="text-sm text-slate-500 mt-1">Disciplina</p>
+            <div class="mt-4">
+                <label for="modal-nota-input" class="campo-label">Nova Nota (0 a 10)</label>
+                <input type="text" id="modal-nota-input" inputmode="decimal" class="campo-input" placeholder="Ex.: 8,5">
+            </div>
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button type="button" onclick="fecharModalEditarNota()" class="btn-secundario text-sm">Cancelar</button>
+                <button type="button" onclick="salvarEdicaoNota()" class="btn-primario text-sm">Salvar Alteração</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="border-t border-slate-200 bg-white py-4 px-4 text-center text-xs text-slate-500">
+        Sistema Escolar • Dados salvos automaticamente no navegador (compatível com <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">alunos.json</code>).
+    </footer>
+
+    <!-- ======================================================================
+         LÓGICA JAVASCRIPT (Porte fiel das regras e validações do Python)
+         ====================================================================== -->
+    <script>
+        // Constantes equivalentes ao código Python
+        const MEDIA_MINIMA = 6.0;
+        const CHAVE_STORAGE = "sistema_escolar_alunos_v1";
+
+        // Lista global de alunos (mesma estrutura de dicionários do Python)
+        let alunos = [];
+
+        // Variáveis auxiliares para modais
+        let acaoConfirmacaoPendente = null;
+        let indiceNotaEmEdicao = null;
+
+        // ====================================================================
+        // 1. PERSISTÊNCIA E COMPATIBILIDADE COM alunos.json
+        // ====================================================================
+
+        function carregarDados() {
+            try {
+                const salvo = localStorage.getItem(CHAVE_STORAGE);
+                if (salvo) {
+                    const parsed = JSON.parse(salvo);
+                    if (Array.isArray(parsed)) {
+                        alunos = parsed;
+                    }
+                }
+            } catch (erro) {
+                console.error("Erro ao carregar dados:", erro);
+                alunos = [];
+            }
+        }
+
+        function salvarDados() {
+            try {
+                localStorage.setItem(CHAVE_STORAGE, JSON.stringify(alunos));
+            } catch (erro) {
+                mostrarNotificacao("Erro ao salvar dados no navegador.", "erro");
+            }
+        }
+
+        function exportarJSON() {
+            const dadosFormatados = JSON.stringify(alunos, null, 2);
+            const blob = new Blob([dadosFormatados], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "alunos.json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            mostrarNotificacao("Arquivo alunos.json exportado com sucesso!", "sucesso");
+        }
+
+        function importarJSON(event) {
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+
+            const leitor = new FileReader();
+            leitor.onload = function (e) {
+                try {
+                    const conteudo = JSON.parse(e.target.result);
+                    if (!Array.isArray(conteudo)) {
+                        throw new Error("Formato inválido");
+                    }
+
+                    // Valida estrutura básica dos objetos do Python
+                    const valido = conteudo.every(item =>
+                        typeof item.nome === "string" &&
+                        typeof item.idade === "number" &&
+                        typeof item.turma === "string" &&
+                        Array.isArray(item.notas) &&
+                        typeof item.frequencia === "object" && item.frequencia !== null
+                    );
+
+                    if (!valido) {
+                        throw new Error("Estrutura incompatível com alunos.json");
+                    }
+
+                    alunos = conteudo;
+                    salvarDados();
+                    atualizarInterfaceCompleta();
+                    mostrarNotificacao(`${alunos.length} aluno(s) importado(s) com sucesso!`, "sucesso");
+                } catch (err) {
+                    mostrarNotificacao("Arquivo JSON inválido ou incompatível.", "erro");
+                } finally {
+                    event.target.value = "";
+                }
+            };
+            leitor.readAsText(arquivo);
+        }
+
+        // ====================================================================
+        // 2. FUNÇÕES AUXILIARES E VALIDAÇÕES (Equivalentes ao Python)
+        // ====================================================================
+
+        /**
+         * Padroniza texto para comparar ignorando caixa, acentos e espaços extras.
+         * Equivalente exato a normalizar(texto) no Python.
+         */
+        function normalizar(texto) {
+            const limpo = String(texto).trim().replace(/\s+/g, " ");
+            const semAcentos = limpo
+                .normalize("NFKD")
+                .replace(/[\u0300-\u036f]/g, "");
+            return semAcentos.toLowerCase();
+        }
+
+        /**
+         * Busca aluno por nome e turma ignorando caixa, acentos e espaços.
+         */
+        function buscarAlunoPorNomeTurma(nome, turma) {
+            const nomeChave = normalizar(nome);
+            const turmaChave = normalizar(turma);
+
+            return alunos.find(aluno =>
+                normalizar(aluno.nome) === nomeChave &&
+                normalizar(aluno.turma) === turmaChave
+            ) || null;
+        }
+
+        /**
+         * Calcula a média das notas; retorna null se ainda não houver notas.
+         */
+        function calcularMedia(notasLista) {
+            if (!notasLista || notasLista.length === 0) {
+                return null;
+            }
+            const soma = notasLista.reduce((acc, item) => acc + item.valor, 0);
+            return soma / notasLista.length;
+        }
+
+        /**
+         * Determina a situação escolar a partir da média.
+         */
+        function determinarSituacao(media) {
+            if (media === null) return "Sem notas";
+            if (media >= MEDIA_MINIMA) return "Aprovado(a)";
+            return "Abaixo da média mínima";
+        }
+
+        /**
+         * Calcula estatísticas de frequência de um aluno.
+         */
+        function calcularFrequencia(chamadas) {
+            const datas = Object.keys(chamadas || {});
+            const total = datas.length;
+            if (total === 0) {
+                return { total: 0, presentes: 0, percentual: null, texto: "Sem chamadas" };
+            }
+            const presentes = Object.values(chamadas).filter(s => s === "P").length;
+            const percentual = (presentes / total) * 100;
+            return {
+                total,
+                presentes,
+                percentual,
+                texto: `${presentes}/${total} aulas (${percentual.toFixed(1)}%)`
+            };
+        }
+
+        /**
+         * Valida e converte nota (0 a 10, aceita vírgula ou ponto).
+         */
+        function validarNota(entradaStr) {
+            const limpa = String(entradaStr).trim().replace(",", ".");
+            if (!limpa) return null;
+            const numero = Number(limpa);
+            if (!Number.isFinite(numero) || numero < 0 || numero > 10) {
+                return null;
+            }
+            return numero;
+        }
+
+        /**
+         * Valida data real no formato AAAA-MM-DD.
+         */
+        function validarDataISO(dataStr) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(dataStr)) return false;
+            const [ano, mes, dia] = dataStr.split("-").map(Number);
+            const dataObj = new Date(Date.UTC(ano, mes - 1, dia));
+            return (
+                dataObj.getUTCFullYear() === ano &&
+                dataObj.getUTCMonth() === mes - 1 &&
+                dataObj.getUTCDate() === dia
+            );
+        }
+
+        // ====================================================================
+        // 3. FEEDBACK VISUAL (Notificações Toast sem alert/confirm)
+        // ====================================================================
+
+        function mostrarNotificacao(mensagem, tipo = "sucesso") {
+            const container = document.getElementById("container-notificacoes");
+            const toast = document.createElement("div");
+
+            const estilos = {
+                sucesso: "bg-green-600 text-white border-green-700",
+                erro: "bg-red-600 text-white border-red-700",
+                aviso: "bg-amber-500 text-white border-amber-600"
+            };
+
+            const icones = {
+                sucesso: "✓",
+                erro: "✕",
+                aviso: "!"
+            };
+
+            toast.className = `notificacao-toast pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium ${estilos[tipo] || estilos.sucesso}`;
+            toast.innerHTML = `
+                <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">${icones[tipo]}</span>
+                <span class="flex-1">${mensagem}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transition = "opacity 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 3800);
+        }
+
+        // ====================================================================
+        // 4. NAVEGAÇÃO ENTRE ABAS E ATUALIZAÇÃO DE SELECTS
+        // ====================================================================
+
+        function alternarAba(nomeAba) {
+            // Atualiza botões do menu
+            document.querySelectorAll(".nav-aba").forEach(btn => {
+                btn.classList.toggle("ativa", btn.dataset.aba === nomeAba);
+            });
+
+            // Oculta todas as seções e exibe a escolhida
+            document.querySelectorAll(".secao-conteudo").forEach(secao => {
+                secao.classList.add("hidden");
+            });
+            const alvo = document.getElementById(`secao-${nomeAba}`);
+            if (alvo) {
+                alvo.classList.remove("hidden");
+            }
+
+            // Atualiza dados dinâmicos da aba aberta
+            if (nomeAba === "consultar") {
+                renderizarListaAlunos();
+            } else {
+                atualizarSelectsAlunos();
+                if (nomeAba === "gerenciar") {
+                    renderizarPainelGerenciamento();
+                }
+            }
+        }
+
+        function obterAlunosOrdenados() {
+            return [...alunos].sort((a, b) => {
+                const cmpTurma = normalizar(a.turma).localeCompare(normalizar(b.turma));
+                if (cmpTurma !== 0) return cmpTurma;
+                return normalizar(a.nome).localeCompare(normalizar(b.nome));
+            });
+        }
+
+        function atualizarSelectsAlunos() {
+            const selects = [
+                document.getElementById("nota-aluno-select"),
+                document.getElementById("freq-aluno-select"),
+                document.getElementById("ger-aluno-select")
+            ];
+
+            const ordenados = obterAlunosOrdenados();
+
+            selects.forEach(select => {
+                if (!select) return;
+                const valorAnterior = select.value;
+                select.innerHTML = `<option value="">-- Escolha um aluno (${ordenados.length} cadastrado${ordenados.length === 1 ? "" : "s"}) --</option>`;
+
+                ordenados.forEach(aluno => {
+                    // Usamos índice real no array global 'alunos' como value
+                    const idxReal = alunos.indexOf(aluno);
+                    const opt = document.createElement("option");
+                    opt.value = String(idxReal);
+                    opt.textContent = `${aluno.nome} — Turma: ${aluno.turma}`;
+                    select.appendChild(opt);
+                });
+
+                if (valorAnterior !== "" && alunos[Number(valorAnterior)]) {
+                    select.value = valorAnterior;
+                }
+            });
+
+            atualizarPreviaMediaNota();
+            atualizarPreviaFrequencia();
+        }
+
+        // ====================================================================
+        // 5. OPERAÇÕES DO SISTEMA (1 a 6 do Python)
+        // ====================================================================
+
+        // OPÇÃO 1: Cadastrar Aluno
+        function handleCadastrarAluno(event) {
+            event.preventDefault();
+
+            const nomeBruto = document.getElementById("cad-nome").value;
+            const idadeBruta = document.getElementById("cad-idade").value;
+            const turmaBruta = document.getElementById("cad-turma").value;
+
+            const nome = nomeBruto.trim().replace(/\s+/g, " ");
+            const turma = turmaBruta.trim().replace(/\s+/g, " ");
+            const idade = Number(idadeBruta);
+
+            // Validações idênticas ao Python
+            if (!nome || nome.length > 100) {
+                mostrarNotificacao("O nome é obrigatório e deve ter no máximo 100 caracteres.", "erro");
+                return;
+            }
+            if (!/[a-zA-ZÀ-ÿ]/.test(nome)) {
+                mostrarNotificacao("O nome precisa conter pelo menos uma letra.", "erro");
+                return;
+            }
+            if (!Number.isInteger(idade) || idade < 6 || idade > 17) {
+                mostrarNotificacao("A idade precisa ser um número inteiro entre 6 e 17 anos.", "erro");
+                return;
+            }
+            if (!turma || turma.length > 50) {
+                mostrarNotificacao("A turma é obrigatória e deve ter no máximo 50 caracteres.", "erro");
+                return;
+            }
+            if (buscarAlunoPorNomeTurma(nome, turma) !== null) {
+                mostrarNotificacao("Já existe um aluno com esse nome nessa turma.", "erro");
+                return;
+            }
+
+            const novoAluno = {
+                nome,
+                idade,
+                turma,
+                notas: [],
+                frequencia: {}
+            };
+
+            alunos.push(novoAluno);
+            salvarDados();
+            event.target.reset();
+            atualizarInterfaceCompleta();
+            mostrarNotificacao(`Aluno "${nome}" cadastrado com sucesso na turma ${turma}!`, "sucesso");
+        }
+
+        // OPÇÃO 2: Adicionar Nota e Ver Média
+        function atualizarPreviaMediaNota() {
+            const idx = document.getElementById("nota-aluno-select").value;
+            const box = document.getElementById("previa-media-box");
+            if (idx === "" || !alunos[Number(idx)]) {
+                box.classList.add("hidden");
+                return;
+            }
+
+            const aluno = alunos[Number(idx)];
+            const media = calcularMedia(aluno.notas);
+            const situacao = determinarSituacao(media);
+
+            document.getElementById("previa-media-valor").textContent = media === null ? "Sem notas" : media.toFixed(2);
+            const badge = document.getElementById("previa-media-status");
+            badge.textContent = situacao;
+            badge.className = "badge-status " + (
+                media === null ? "badge-sem-notas" :
+                media >= MEDIA_MINIMA ? "badge-aprovado" : "badge-abaixo"
+            );
+            box.classList.remove("hidden");
+        }
+
+        function handleAdicionarNota(event) {
+            event.preventDefault();
+
+            const idxStr = document.getElementById("nota-aluno-select").value;
+            if (idxStr === "" || !alunos[Number(idxStr)]) {
+                mostrarNotificacao("Selecione um aluno válido.", "erro");
+                return;
+            }
+
+            const aluno = alunos[Number(idxStr)];
+            const descricao = document.getElementById("nota-descricao").value.trim().replace(/\s+/g, " ");
+            const notaInput = document.getElementById("nota-valor").value;
+
+            if (!descricao || descricao.length > 80) {
+                mostrarNotificacao("Informe a disciplina/avaliação (máximo 80 caracteres).", "erro");
+                return;
+            }
+
+            const valorNota = validarNota(notaInput);
+            if (valorNota === null) {
+                mostrarNotificacao("Digite uma nota válida entre 0 e 10 (ex.: 7,5).", "erro");
+                return;
+            }
+
+            aluno.notas.push({
+                descricao,
+                valor: valorNota
+            });
+
+            salvarDados();
+            document.getElementById("nota-descricao").value = "";
+            document.getElementById("nota-valor").value = "";
+            atualizarPreviaMediaNota();
+            atualizarEstatisticas();
+
+            const novaMedia = calcularMedia(aluno.notas);
+            const situacao = determinarSituacao(novaMedia);
+            mostrarNotificacao(`Nota registrada! Média atual de ${aluno.nome}: ${novaMedia.toFixed(2)} (${situacao}).`, "sucesso");
+        }
+
+        // OPÇÃO 3: Registrar Presença / Falta
+        function atualizarPreviaFrequencia() {
+            const idx = document.getElementById("freq-aluno-select").value;
+            const box = document.getElementById("previa-freq-box");
+            if (idx === "" || !alunos[Number(idx)]) {
+                box.classList.add("hidden");
+                return;
+            }
+
+            const aluno = alunos[Number(idx)];
+            const freq = calcularFrequencia(aluno.frequencia);
+            document.getElementById("previa-freq-texto").textContent = freq.texto;
+            box.classList.remove("hidden");
+        }
+
+        function handleRegistrarFrequencia(event) {
+            event.preventDefault();
+
+            const idxStr = document.getElementById("freq-aluno-select").value;
+            if (idxStr === "" || !alunos[Number(idxStr)]) {
+                mostrarNotificacao("Selecione um aluno válido.", "erro");
+                return;
+            }
+
+            const aluno = alunos[Number(idxStr)];
+            const dataAula = document.getElementById("freq-data").value.trim();
+            const situacaoRadio = document.querySelector('input[name="freq-situacao"]:checked');
+            const situacao = situacaoRadio ? situacaoRadio.value : "";
+
+            if (!validarDataISO(dataAula)) {
+                mostrarNotificacao("Data inválida. Use o formato AAAA-MM-DD.", "erro");
+                return;
+            }
+
+            if (Object.prototype.hasOwnProperty.call(aluno.frequencia, dataAula)) {
+                mostrarNotificacao("Já existe uma chamada registrada para esse aluno nessa data.", "erro");
+                return;
+            }
+
+            if (situacao !== "P" && situacao !== "F") {
+                mostrarNotificacao("Escolha P para presente ou F para falta.", "erro");
+                return;
+            }
+
+            aluno.frequencia[dataAula] = situacao;
+            salvarDados();
+            atualizarPreviaFrequencia();
+
+            const freqAtual = calcularFrequencia(aluno.frequencia);
+            const rotulo = situacao === "P" ? "Presença" : "Falta";
+            mostrarNotificacao(`${rotulo} registrada em ${dataAula}. Frequência: ${freqAtual.texto}.`, "sucesso");
+        }
+
+        // OPÇÃO 4: Consultar Alunos (Listar todos ou pesquisar turma)
+        function limparFiltroConsulta() {
+            document.getElementById("filtro-turma").value = "";
+            renderizarListaAlunos();
+        }
+
+        function renderizarListaAlunos() {
+            const container = document.getElementById("lista-alunos-container");
+            const filtro = document.getElementById("filtro-turma").value;
+            const filtroChave = normalizar(filtro);
+
+            atualizarEstatisticas();
+
+            if (alunos.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full card-painel p-10 text-center">
+                        <p class="text-3xl mb-2">📚</p>
+                        <h3 class="text-base font-bold text-slate-700">Nenhum aluno cadastrado</h3>
+                        <p class="text-sm text-slate-500 mt-1">Clique em "Cadastrar Aluno" acima para começar ou importe um arquivo alunos.json.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let filtrados = obterAlunosOrdenados();
+            if (filtroChave) {
+                filtrados = filtrados.filter(a => normalizar(a.turma).includes(filtroChave));
+            }
+
+            if (filtrados.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full card-painel p-8 text-center">
+                        <p class="text-sm font-medium text-slate-600">Não há alunos cadastrados nessa turma.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtrados.map(aluno => {
+                const media = calcularMedia(aluno.notas);
+                const situacao = determinarSituacao(media);
+                const freq = calcularFrequencia(aluno.frequencia);
+
+                const badgeClasse =
+                    media === null ? "badge-sem-notas" :
+                    media >= MEDIA_MINIMA ? "badge-aprovado" : "badge-abaixo";
+
+                const notasHtml = aluno.notas.length === 0
+                    ? `<p class="text-xs text-slate-400 italic">Nenhuma nota lançada.</p>`
+                    : `<ul class="space-y-1 mt-1.5">
+                        ${aluno.notas.map(n => `
+                            <li class="flex justify-between text-xs bg-slate-50 px-2.5 py-1.5 rounded border border-slate-100">
+                                <span class="text-slate-700 truncate pr-2">${escaparHTML(n.descricao)}</span>
+                                <span class="font-bold text-slate-900">${n.valor.toFixed(1)}</span>
+                            </li>
+                        `).join("")}
+                       </ul>`;
+
+                const datasOrdenadas = Object.keys(aluno.frequencia || {}).sort().reverse();
+                const chamadasHtml = datasOrdenadas.length === 0
+                    ? `<p class="text-xs text-slate-400 italic">Nenhuma chamada registrada.</p>`
+                    : `<div class="flex flex-wrap gap-1.5 mt-1.5">
+                        ${datasOrdenadas.slice(0, 8).map(data => {
+                            const pres = aluno.frequencia[data] === "P";
+                            return `<span class="text-[11px] px-2 py-0.5 rounded font-medium ${pres ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}">${data}: ${aluno.frequencia[data]}</span>`;
+                        }).join("")}
+                        ${datasOrdenadas.length > 8 ? `<span class="text-[11px] text-slate-400 self-center">+${datasOrdenadas.length - 8}</span>` : ""}
+                       </div>`;
+
+                return `
+                    <article class="card-painel p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 class="font-bold text-base text-slate-800">${escaparHTML(aluno.nome)}</h3>
+                                    <p class="text-xs text-slate-500 mt-0.5">${aluno.idade} anos • Turma: <strong class="text-slate-700">${escaparHTML(aluno.turma)}</strong></p>
+                                </div>
+                                <span class="badge-status ${badgeClasse}">${situacao}</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 my-3 bg-slate-50/80 p-3 rounded-lg border border-slate-100">
+                                <div>
+                                    <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Média Geral</span>
+                                    <span class="text-base font-bold text-slate-800">${media === null ? "Sem notas" : media.toFixed(2)}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">Frequência</span>
+                                    <span class="text-sm font-semibold text-slate-800">${freq.texto}</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 mt-3">
+                                <div>
+                                    <span class="text-xs font-semibold text-slate-600">Notas (${aluno.notas.length}):</span>
+                                    ${notasHtml}
+                                </div>
+                                <div>
+                                    <span class="text-xs font-semibold text-slate-600">Histórico de Chamada:</span>
+                                    ${chamadasHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        // OPÇÕES 5 e 6: Editar / Remover Nota e Remover Aluno
+        function renderizarPainelGerenciamento() {
+            const idxStr = document.getElementById("ger-aluno-select").value;
+            const painel = document.getElementById("painel-gerenciamento-detalhes");
+
+            if (idxStr === "" || !alunos[Number(idxStr)]) {
+                painel.classList.add("hidden");
+                return;
+            }
+
+            const idxAluno = Number(idxStr);
+            const aluno = alunos[idxAluno];
+            const listaNotasEl = document.getElementById("ger-lista-notas");
+
+            if (aluno.notas.length === 0) {
+                listaNotasEl.innerHTML = `<p class="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg border border-slate-200">Este aluno ainda não possui notas lançadas.</p>`;
+            } else {
+                listaNotasEl.innerHTML = aluno.notas.map((item, idxNota) => `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">${escaparHTML(item.descricao)}</p>
+                            <p class="text-xs text-slate-500">Valor atual: <strong class="text-blue-600 text-sm">${item.valor.toFixed(2)}</strong></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="abrirModalEditarNota(${idxNota})" class="btn-secundario text-xs py-1.5 px-3">
+                                Corrigir Nota
+                            </button>
+                            <button type="button" onclick="confirmarRemocaoNota(${idxNota})" class="bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs py-1.5 px-3 rounded-lg transition cursor-pointer">
+                                Remover
+                            </button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            painel.classList.remove("hidden");
+        }
+
+        // Edição de Nota via Modal
+        function abrirModalEditarNota(idxNota) {
+            const idxAluno = Number(document.getElementById("ger-aluno-select").value);
+            const aluno = alunos[idxAluno];
+            if (!aluno || !aluno.notas[idxNota]) return;
+
+            indiceNotaEmEdicao = idxNota;
+            const notaAtual = aluno.notas[idxNota];
+
+            document.getElementById("modal-nota-descricao").textContent = `${aluno.nome} — ${notaAtual.descricao}`;
+            document.getElementById("modal-nota-input").value = String(notaAtual.valor).replace(".", ",");
+
+            const modal = document.getElementById("modal-editar-nota");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            document.getElementById("modal-nota-input").focus();
+        }
+
+        function fecharModalEditarNota() {
+            const modal = document.getElementById("modal-editar-nota");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            indiceNotaEmEdicao = null;
+        }
+
+        function salvarEdicaoNota() {
+            const idxAluno = Number(document.getElementById("ger-aluno-select").value);
+            const aluno = alunos[idxAluno];
+            if (!aluno || indiceNotaEmEdicao === null || !aluno.notas[indiceNotaEmEdicao]) return;
+
+            const novaNota = validarNota(document.getElementById("modal-nota-input").value);
+            if (novaNota === null) {
+                mostrarNotificacao("Digite uma nota válida entre 0 e 10.", "erro");
+                return;
+            }
+
+            aluno.notas[indiceNotaEmEdicao].valor = novaNota;
+            salvarDados();
+            fecharModalEditarNota();
+            renderizarPainelGerenciamento();
+            atualizarEstatisticas();
+            mostrarNotificacao("Nota corrigida com sucesso!", "sucesso");
+        }
+
+        // Remoção de Nota com Confirmação
+        function confirmarRemocaoNota(idxNota) {
+            const idxAluno = Number(document.getElementById("ger-aluno-select").value);
+            const aluno = alunos[idxAluno];
+            if (!aluno || !aluno.notas[idxNota]) return;
+
+            const descricao = aluno.notas[idxNota].descricao;
+            abrirModalConfirmacao(
+                "Remover Nota",
+                `Deseja realmente remover a nota "${descricao}" de ${aluno.nome}?`,
+                () => {
+                    aluno.notas.splice(idxNota, 1);
+                    salvarDados();
+                    renderizarPainelGerenciamento();
+                    atualizarEstatisticas();
+                    mostrarNotificacao(`Nota "${descricao}" removida.`, "sucesso");
+                }
+            );
+        }
+
+        // Remoção de Aluno com Confirmação (Opção 6 do Python)
+        function abrirModalConfirmacaoRemoverAluno() {
+            const idxAluno = Number(document.getElementById("ger-aluno-select").value);
+            const aluno = alunos[idxAluno];
+            if (!aluno) return;
+
+            abrirModalConfirmacao(
+                "Remover Aluno",
+                `Tem certeza que quer remover ${aluno.nome} (Turma: ${aluno.turma})?`,
+                () => {
+                    const nomeRemovido = aluno.nome;
+                    alunos.splice(idxAluno, 1);
+                    salvarDados();
+                    atualizarInterfaceCompleta();
+                    document.getElementById("painel-gerenciamento-detalhes").classList.add("hidden");
+                    mostrarNotificacao(`Aluno "${nomeRemovido}" removido com sucesso!`, "sucesso");
+                }
+            );
+        }
+
+        // Controle do Modal Genérico de Confirmação
+        function abrirModalConfirmacao(titulo, mensagem, callbackConfirmar) {
+            document.getElementById("modal-titulo").textContent = titulo;
+            document.getElementById("modal-mensagem").textContent = mensagem;
+            acaoConfirmacaoPendente = callbackConfirmar;
+
+            const modal = document.getElementById("modal-confirmacao");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function fecharModalConfirmacao() {
+            const modal = document.getElementById("modal-confirmacao");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            acaoConfirmacaoPendente = null;
+        }
+
+        document.getElementById("modal-btn-confirmar").addEventListener("click", () => {
+            if (typeof acaoConfirmacaoPendente === "function") {
+                acaoConfirmacaoPendente();
+            }
+            fecharModalConfirmacao();
+        });
+
+        // ====================================================================
+        // 6. ESTATÍSTICAS E UTILITÁRIOS DE SEGURANÇA
+        // ====================================================================
+
+        function atualizarEstatisticas() {
+            document.getElementById("stat-total-alunos").textContent = alunos.length;
+
+            const aprovados = alunos.filter(a => {
+                const m = calcularMedia(a.notas);
+                return m !== null && m >= MEDIA_MINIMA;
+            }).length;
+            document.getElementById("stat-aprovados").textContent = aprovados;
+
+            const turmasUnicas = new Set(alunos.map(a => normalizar(a.turma)));
+            document.getElementById("stat-turmas").textContent = turmasUnicas.size;
+        }
+
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function atualizarInterfaceCompleta() {
+            atualizarSelectsAlunos();
+            renderizarListaAlunos();
+        }
+
+        // ====================================================================
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        // ====================================================================
+        window.addEventListener("DOMContentLoaded", () => {
+            carregarDados();
+
+            // Preenche a data de hoje por padrão no campo de chamada
+            const hoje = new Date();
+            const yyyy = hoje.getFullYear();
+            const mm = String(hoje.getMonth() + 1).padStart(2, "0");
+            const dd = String(hoje.getDate()).padStart(2, "0");
+            document.getElementById("freq-data").value = `${yyyy}-${mm}-${dd}`;
+
+            atualizarInterfaceCompleta();
+        });
+    </script>
+</body>
+</html>
