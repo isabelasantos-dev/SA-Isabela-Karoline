@@ -1,11 +1,14 @@
 import json
-import math
 import os
+import re
 import unicodedata
-from datetime import datetime
 from flask import Flask, jsonify, request, render_template
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="../interface",
+    static_url_path="/interface"
+)
 
 MEDIA_MINIMA = 6.0
 ARQUIVO = "alunos.json"
@@ -76,4 +79,4 @@ def cadastrar_aluno():
 
 if __name__ == "__main__":
     carregar_dados()
-app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)
